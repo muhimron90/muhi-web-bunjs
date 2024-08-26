@@ -1,0 +1,9 @@
+{
+  "name": "muhipack",
+  "private": true,
+  "module": "index.ts",
+  "type": "module",
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

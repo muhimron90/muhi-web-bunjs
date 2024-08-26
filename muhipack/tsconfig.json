@@ -1,0 +1,15 @@
+{
+  "extends": "../tsconfig.base.json",
+  "include": ["./src/**/*.ts", "./cli.ts", "./index.d.ts"],
+  "exclude": [],
+  "compilerOptions": {
+    // Enable latest features
+    "lib": ["ES2020"],
+    "target": "ES2020",
+    "module": "node16",
+    "moduleResolution": "node16",
+    "noEmit": true, // if want compile turn `false`
+    "exactOptionalPropertyTypes": true
+    //"types": ["bun", "node", "ws"]
+  }
+}

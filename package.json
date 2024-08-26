@@ -1,0 +1,15 @@
+{
+  "name": "muhi-web-bunjs",
+  "module": "index.ts",
+  "type": "module",
+  "scripts": {
+    "serve": "bun run muhipack/cli.ts",
+    "test:dev": "bun test --timeout 1000"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "extends": "./tsconfig.base.json",
+
+  "exclude": ["node_modules"],
+
+  "include": ["./src/**/*.ts"],
+  "compilerOptions": {
+    // Enable latest features
+    "lib": ["ESNext", "DOM"],
+    "target": "ESNext",
+    "module": "ESNext",
+
+    // Bundler mode
+    "moduleResolution": "bundler"
+  }
+}
