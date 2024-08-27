@@ -1,5 +1,5 @@
 import { type IBuildFilesParams } from "muhipack";
-import { watch, statSync } from "node:fs";
+import { watch } from "node:fs";
 import path from "node:path";
 import { Logger } from "./common/logger.ts";
 import buildFiles from "./build.ts";
@@ -11,6 +11,7 @@ import {
 } from "bun";
 import normalizeErrorMessage from "./utils/normalizeErrorMessage.ts";
 import MuhipackError from "./common/errors.ts";
+import { HttpStatus } from "./common/httpStatusCode.ts";
 
 function generateScript(wsPrefix: string) {
   const templateScript = `
@@ -70,10 +71,11 @@ export function injectLiveReload<T, O extends TServerOptions<T>>(
   userConfig: ILiveReloadConfig,
 ): Serve<T> | Promise<Serve<T>> {
   const { websocketLiveReloadPrefix, buildConfig, watchDirPath } = userConfig;
+
+  const logger = new Logger("HMR");
   if (!buildConfig.devMode) {
     return options;
   }
-  const logger = new Logger("HMR");
   const watchPath = path.join(process.cwd(), watchDirPath as string);
   if (!watchPath || typeof watchPath === "undefined") {
     throw new MuhipackError("ERMISSINGDIR");
@@ -90,7 +92,7 @@ export function injectLiveReload<T, O extends TServerOptions<T>>(
         if (!upgrade) {
           const messageBody = "Failed to Upgrade server";
           return new Response(messageBody, {
-            status: 400,
+            status: HttpStatus.BadRequest,
             headers: {
               "Content-Type": "text/plain",
               "Content-Length": `${Buffer.byteLength(messageBody)}`,
@@ -125,7 +127,7 @@ export function injectLiveReload<T, O extends TServerOptions<T>>(
     websocket: {
       ...options.websocket,
       open(ws) {
-        logger.log("Hot Reload is Running");
+        logger.info("Hot Reload is Running");
         let previousTime = new Date().valueOf();
         watcher.on("change", async (_, filename) => {
           const timeNow = Date.now();
@@ -135,7 +137,7 @@ export function injectLiveReload<T, O extends TServerOptions<T>>(
             }
             await buildFiles(buildConfig);
             ws.send("reload");
-            logger.log("reloaded");
+            logger.info("reloaded");
             previousTime = timeNow;
           }
         });

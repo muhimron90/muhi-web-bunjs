@@ -1,6 +1,3 @@
-//https://github.com/prettymuchbryce/http-status-codes/blob/master/src/utils.ts
-//https://github.com/j-ulrich/http-status-codes-cpp/blob/main/HttpStatusCodes_C.h
-
 import type {
   IHttpStatusCode,
   IStructHttpStatusCode,
@@ -11,6 +8,7 @@ export let HttpStatus = {} as IStructHttpStatusCode;
   code["Continue"] = 100;
   code["Ok"] = 200;
   code["MovedPermanently"] = 301;
+  code["BadRequest"] = 400;
   code["Forbidden"] = 403;
   code["NotFound"] = 404;
   code["MethodNotAllowed"] = 405;
@@ -24,8 +22,12 @@ export function reasonPhrase(
       return "Continue";
     case 200:
       return "Ok";
-    case 403:
+    case 301:
       return "Moved Permanently";
+    case 400:
+      return "Bad Request";
+    case 403:
+      return "Forbidden";
     case 404:
       return "Not Found";
     case 405:
