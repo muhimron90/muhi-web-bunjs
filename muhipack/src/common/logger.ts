@@ -1,4 +1,5 @@
 import { Console } from "node:console";
+import calculateTimeLog from "../utils/calculateTimeLog.ts";
 enum LEVEL_lOG {
   INFO = "info",
   ERROR = "error",
@@ -9,8 +10,6 @@ enum LEVEL_lOG {
 class Logger {
   private console: Console;
   private name: string;
-  //private cache: Map<number, string>;
-  //private cacheSize: number;
   private colorize: boolean;
   constructor(name: string, enableColor: boolean = false) {
     this.console = new Console({
@@ -18,35 +17,31 @@ class Logger {
       stderr: process.stderr,
     });
     this.name = name;
-    // this.cache = new Map<number, string>();
-    // this.cacheSize = 5;
     this.colorize = enableColor;
   }
-  // private _setKey(level: LEVEL_lOG): number {
-  //   let hashKey = 0;
-  //   const len = level.length;
-  //   if (len < 0) return hashKey;
-  //   for (let i = 0; i < len; ++i) {
-  //     let char = level.charCodeAt(i);
-  //     hashKey = (hashKey << 2) - hashKey;
-  //     hashKey = hashKey + (char % this.cacheSize);
-  //   }
-  //   return hashKey;
-  // }
   private getLocalDateTime(): string {
     const timeNow = Date.now();
     const dateTime = new Date(timeNow);
-    let date = ("0" + dateTime.getDate()).slice(-2);
-    let month = ("0" + (dateTime.getMonth() + 1)).slice(-2);
-    let year = dateTime.getFullYear();
-    let hours = dateTime.getHours();
-    let minutes = dateTime.getMinutes();
-    let seconds = dateTime.getSeconds();
-    let localTime = year + "-" + month + "-" + date + " ";
-    localTime += hours + ":" + minutes + ":" + seconds;
-    return localTime;
+    const timeFormatter: Intl.DateTimeFormat = new Intl.DateTimeFormat(
+      undefined,
+      {
+        year: "numeric",
+        month: "numeric",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+        second: "numeric",
+      },
+    );
+
+    const time = timeFormatter.format(dateTime).split(",");
+    let result: string = "";
+    for (let i = 0; i < time.length; ++i) {
+      result += time[i];
+    }
+    return result;
   }
-  private format(level: LEVEL_lOG, message: string): string {
+  private format(level: LEVEL_lOG, message: string, timeLog: number): string {
     /* ANSI COLOR
      * https://talyian.github.io/ansicolors/
      */
@@ -62,23 +57,15 @@ class Logger {
         ? `\x1b[31m${level}\x1b[0m`
         : `\x1b[32m${level}\x1b[0m`;
     const prefixLevel = this.colorize ? colorizeLevelPrefix : level;
+
     let logFormatted = timestamp + " " + prefixName + "::";
-    logFormatted += prefixLevel + " " + message;
+    logFormatted +=
+      prefixLevel + " " + message + " " + calculateTimeLog(timeLog);
     return logFormatted;
   }
   private output(level: LEVEL_lOG, message: string): string | undefined {
-    // const key = this._setKey(level);
-    //
-    // if (this.cache.has(key) && this.cache.size >= this.cacheSize) {
-    //   this.cache.delete(key);
-    // }
-    // if (this.cache.has(key)) {
-    //   const result = this.cache.get(key) || "";
-    //   this.cache.delete(key);
-    //   return result;
-    // }
-    const output = this.format(level, message);
-    //this.cache.set(key, output);
+    const start = Date.now();
+    const output = this.format(level, message, start);
     return output;
   }
   info(message: string) {
@@ -97,8 +84,5 @@ class Logger {
   log(message: string) {
     this.console.log("%s", this.output(LEVEL_lOG.LOG, message));
   }
-  // closed() {
-  //   this.cache.clear();
-  // }
 }
 export { Logger, LEVEL_lOG };

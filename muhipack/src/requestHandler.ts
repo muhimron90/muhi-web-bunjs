@@ -2,7 +2,6 @@ import type { Server } from "bun";
 import { HttpStatus, reasonPhrase } from "./common/httpStatusCode.ts";
 import prepareStaticFile from "./static.ts";
 import MIME_TYPES from "./mime.ts";
-import calculateTimeLog from "./utils/calculateTimeLog.ts";
 import { Logger } from "./common/logger.ts";
 import type { IUserConfig } from "muhipack";
 function requestHandler({
@@ -10,7 +9,6 @@ function requestHandler({
   staticDirectory,
 }: Pick<IUserConfig, "devMode" | "staticDirectory">) {
   const logger = new Logger("request", devMode);
-  const start = Date.now();
   return async (
     request: Request,
     server: Server,
@@ -33,9 +31,7 @@ function requestHandler({
     );
     let responseBody = body;
     let statusCode = found ? HttpStatus.Ok : HttpStatus.NotFound;
-    logger.log(
-      `${request.method}::${url.pathname} ${statusCode} - ${calculateTimeLog(start)}`,
-    );
+    logger.log(`${request.method}::${url.pathname} ${statusCode}`);
     return new Response(responseBody, {
       status: statusCode,
       headers: {
