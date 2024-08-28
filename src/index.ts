@@ -1,14 +1,11 @@
-function init(
-  nS: string,
-  rendering: string | undefined,
-): HTMLCanvasElement | null {
-  let content = rendering || "2d";
-  let canvas = <HTMLCanvasElement | null>document.getElementById(nS);
+function init(nS: string, id: string): HTMLCanvasElement | null {
+  let canvas = <HTMLCanvasElement | null>document.createElement(nS);
   if (canvas) {
+    canvas.id = id;
     canvas.width = 500;
     canvas.height = 600;
 
-    const ctx = <CanvasRenderingContext2D>canvas.getContext(content);
+    const ctx = <CanvasRenderingContext2D>canvas.getContext("2d");
     ctx.fillStyle = "rgb(200 0 0)";
     ctx.fillRect(10, 10, 50, 50);
     ctx.fillStyle = "rgb(0 0 200 / 50%)";
@@ -20,7 +17,7 @@ function init(
 
 function app(): void {
   const app = <HTMLDivElement>document.getElementById("app");
-  const canvas = init("muhi-canvas", "2d");
+  const canvas = init("canvas", "muhi-canvas");
   console.log("mantap coksss");
   if (!canvas) throw new Error("cannot load canvas");
   app.appendChild(canvas);

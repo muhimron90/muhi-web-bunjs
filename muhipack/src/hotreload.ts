@@ -13,22 +13,20 @@ import normalizeErrorMessage from "./utils/normalizeErrorMessage.ts";
 import MuhipackError from "./common/errors.ts";
 import { HttpStatus } from "./common/httpStatusCode.ts";
 
-function generateScript(wsPrefix: string) {
+function generateScript(wsPrefix: string): string {
   const templateScript = `
-    <!-- Injected by MuhiServer -->
+    <!-- Injected by MuhipackServer -->
     <script type="text/javascript">
-      // <![CDATA [ <-- SVG
       if ("WebSocket" in window) {
         (function () {
-          var isDev = window.location.hostname === "localhost";
-          if (isDev) {
+          var isLocalhost = window.location.hostname === "localhost";
+          if (isLocalhost) {
             var protocol = window.location.protocol === "http:" ? "ws://" : "wss//";
             var address =
               protocol +
               window.location.host +
               window.location.pathname +
               "${wsPrefix}";
-            console.log(address);
             var socket = new WebSocket(address);
             socket.onopen = function () {
                 console.log("Live reload enabled");
@@ -45,7 +43,6 @@ function generateScript(wsPrefix: string) {
           }
         })();
       }
-      //]]>
     </script>
 `;
 
@@ -66,13 +63,13 @@ interface ILiveReloadConfig {
   websocketLiveReloadPrefix?: string;
   watchDirPath?: string;
 }
-export function injectLiveReload<T, O extends TServerOptions<T>>(
+export async function injectLiveReload<T, O extends TServerOptions<T>>(
   options: O,
   userConfig: ILiveReloadConfig,
-): Serve<T> | Promise<Serve<T>> {
+): Promise<Serve<T>> {
   const { websocketLiveReloadPrefix, buildConfig, watchDirPath } = userConfig;
-
-  const logger = new Logger("HMR");
+  const logger = new Logger("HMR", buildConfig.devMode);
+  await buildFiles(buildConfig);
   if (!buildConfig.devMode) {
     return options;
   }
@@ -82,6 +79,7 @@ export function injectLiveReload<T, O extends TServerOptions<T>>(
   }
 
   let watcher = watch(watchPath, { recursive: true });
+
   return {
     ...options,
     async fetch(request, server) {
@@ -128,18 +126,10 @@ export function injectLiveReload<T, O extends TServerOptions<T>>(
       ...options.websocket,
       open(ws) {
         logger.info("Hot Reload is Running");
-        let previousTime = new Date().valueOf();
-        watcher.on("change", async (_, filename) => {
-          const timeNow = Date.now();
-          if (filename) {
-            if (timeNow === previousTime) {
-              return;
-            }
-            await buildFiles(buildConfig);
-            ws.send("reload");
-            logger.info("reloaded");
-            previousTime = timeNow;
-          }
+        watcher.on("change", async () => {
+          await buildFiles(buildConfig);
+          ws.send("reload");
+          logger.info("reloaded");
         });
         watcher.once("error", () => {
           logger.info("Watcher Error");

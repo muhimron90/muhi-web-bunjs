@@ -16,19 +16,17 @@ async function buildFiles({
     }
   }
   await build({
-    entrypoints: entryfiles,
+    entrypoints: files,
     outdir: outDir,
     format: "esm",
     target: "browser",
     minify: devMode === true ? false : true,
   }).then((log) => {
-    if (log.success) {
-      log.outputs.forEach((x) => {
-        const sizee = x.size < 1000 ? `${x.size} Bytes` : `${x.size / 1000} Kb`;
-        const loggs = `BUILD::\tsize: ${sizee}`;
-        logger.info(loggs);
-      });
-    }
+    log.outputs.forEach((x) => {
+      const sizee = x.size < 1000 ? `${x.size} Bytes` : `${x.size / 1000} Kb`;
+      const loggs = `BUILD::\tsize: ${sizee}`;
+      logger.info(loggs);
+    });
   });
 }
 export default buildFiles;
