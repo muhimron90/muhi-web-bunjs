@@ -14,7 +14,7 @@ audioButton.type = "button";
 audioButton.id = "audio-button";
 audioButton.role = "switch";
 audioButton.setAttribute("data-playing", "false");
-audioButton.textContent = "Play";
+audioButton.textContent = "START";
 let audioCtx: AudioContext | undefined;
 let offset = 0;
 
@@ -40,6 +40,8 @@ function playAudio(audioBuffer: AudioBuffer) {
     buffer: audioBuffer,
   });
   track.connect(audioCtx!.destination);
+  console.log("playing audio");
+  console.table(audioBuffer);
   if (offset == 0) {
     track.start();
     offset = audioCtx!.currentTime;

@@ -3,6 +3,10 @@
 _Personal experiment purpose_
 Just making fun of this boilerplate/starterkit/playkit or whatsoever they called it.
 
+### Preview
+
+![](docs/images/Serve.gif)
+
 - bugs included
 - a lot stuff not implemented yet or never :v
 
